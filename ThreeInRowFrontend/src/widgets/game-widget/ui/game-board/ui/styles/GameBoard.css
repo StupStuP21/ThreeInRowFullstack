@@ -1,0 +1,13 @@
+.board {
+    display: inline-block;
+    border: 2px solid #333;
+    padding: 5px;
+    background-color: #f0f0f0;
+    border-radius: 8px;
+    --destroy-duration: 0.8s;
+    --fall-spawn-duration: 0.5s;
+}
+
+.row {
+    display: flex;
+}
