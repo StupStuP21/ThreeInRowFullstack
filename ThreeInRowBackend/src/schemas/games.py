@@ -1,6 +1,6 @@
 from typing import Optional
-from datetime import datetime
-from pydantic import BaseModel, ConfigDict
+from datetime import datetime, timezone
+from pydantic import BaseModel, ConfigDict, field_serializer
 from src.schemas.game_fields import GameFieldResponse
 from src.schemas.difficulties import DifficultyResponse
 from src.schemas.game_rules import GameRuleResponse
@@ -21,6 +21,14 @@ class GameResponse(BaseModel):
     difficulty: Optional[DifficultyResponse] = None
     game_rules: Optional[GameRuleResponse] = None
     model_config = ConfigDict(from_attributes=True)
+
+    @field_serializer('start_time', 'last_action_time')
+    def serialize_dt(self, dt: Optional[datetime]) -> Optional[str]:
+        if dt is None:
+            return None
+        if dt.tzinfo is None:
+            dt = dt.replace(tzinfo=timezone.utc)
+        return dt.isoformat()
 
 class GameUpdate(BaseModel):
     difficulty_id: Optional[int] = None
