@@ -1,29 +1,31 @@
 services:
   postgres:
     image: postgres:16-alpine
+    restart: unless-stopped
     environment:
-      POSTGRES_DB: three-row-game
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: user
+      POSTGRES_DB: ${DB_NAME:-three-row-game}
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-user}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres}"]
       interval: 5s
       timeout: 5s
       retries: 10
 
   backend:
     build: ./ThreeInRowBackend
+    restart: unless-stopped
     ports:
       - "8000:8000"
     environment:
       DB_HOST: postgres
       DB_PORT: 5432
-      DB_NAME: three-row-game
-      DB_USER: postgres
-      DB_PASSWORD: user
-      FRONT_HOSTS: "http://localhost,http://127.0.0.1"
+      DB_NAME: ${DB_NAME:-three-row-game}
+      DB_USER: ${DB_USER:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD:-user}
+      FRONT_HOSTS: ${FRONT_HOSTS:-http://localhost,http://127.0.0.1}
       TZ: UTC
     depends_on:
       postgres:
@@ -33,7 +35,8 @@ services:
     build:
       context: ./ThreeInRowFrontend
       args:
-        VITE_API_URL: http://localhost:8000
+        VITE_API_URL: ${VITE_API_URL:-http://localhost:8000}
+    restart: unless-stopped
     ports:
       - "80:80"
     depends_on:
